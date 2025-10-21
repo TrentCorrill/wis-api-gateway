@@ -13,15 +13,12 @@ backend:
 api:
   keys: ${API_KEYS}
 
-# Redis from Azure Cache for Redis
+# Redis (temporarily disabled - will add later)
 spring:
-  data:
-    redis:
-      host: ${REDIS_HOST}
-      port: 6380
-      password: ${REDIS_PASSWORD}
-      ssl:
-        enabled: true
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration
 
 # CORS (production domains only - strict)
 cors:
