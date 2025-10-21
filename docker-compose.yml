@@ -1,0 +1,81 @@
+# Docker Compose for WIS API Gateway Local Development
+# This setup includes:
+# - Redis for rate limiting
+# - API Gateway service
+#
+# Usage:
+#   docker-compose up -d          # Start all services
+#   docker-compose logs -f        # View logs
+#   docker-compose down           # Stop all services
+
+version: '3.8'
+
+services:
+  # Redis for rate limiting
+  redis:
+    image: redis:7-alpine
+    container_name: wis-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks:
+      - wis-network
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wis-api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      # Spring profile
+      SPRING_PROFILES_ACTIVE: local
+
+      # Redis connection
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ""
+
+      # Backend service URLs (adjust these to your local setup)
+      # If running services locally outside Docker, use host.docker.internal
+      WIS_REGISTRATION_URL: ${WIS_REGISTRATION_URL:-http://host.docker.internal:8081}
+      WIS_SUBSCRIPTIONS_URL: ${WIS_SUBSCRIPTIONS_URL:-http://host.docker.internal:8082}
+      WIS_MESSAGES_URL: ${WIS_MESSAGES_URL:-http://host.docker.internal:8083}
+
+      # API keys (local test keys)
+      API_KEYS: local-dev-key-12345,test-key-67890
+
+      # CORS origins
+      CORS_ALLOWED_ORIGINS: http://localhost:3000,http://localhost:8000,http://127.0.0.1:8000,http://localhost:5500
+
+      # JVM options
+      JAVA_OPTS: -Xmx512m -Xms256m
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+    networks:
+      - wis-network
+    restart: unless-stopped
+
+networks:
+  wis-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+    driver: local

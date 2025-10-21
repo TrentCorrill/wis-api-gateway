@@ -1,0 +1,40 @@
+# Staging environment configuration
+
+# Backend service URLs (staging)
+backend:
+  registration:
+    url: https://wis-registration-stage.azurewebsites.net
+  subscriptions:
+    url: https://wis-subscriptions-stage.azurewebsites.net
+  messages:
+    url: https://wis-message-handler-stage.azurewebsites.net
+
+# API keys from Azure Key Vault
+api:
+  keys: ${API_KEYS}
+
+# Redis from Azure Cache for Redis
+spring:
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: 6380
+      password: ${REDIS_PASSWORD}
+      ssl:
+        enabled: true
+
+# CORS (staging domains)
+cors:
+  allowed-origins: https://*.azurestaticapps.net,https://stage.wordsinseason.com
+
+# Application Insights
+azure:
+  application-insights:
+    instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY}
+
+# Logging (less verbose in staging)
+logging:
+  level:
+    com.wis.apigateway: INFO
+    org.springframework.cloud.gateway: INFO
+    org.springframework.web: WARN

@@ -1,0 +1,95 @@
+# Local development configuration
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: registration
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/register/**
+          filters:
+            - name: ApiKeyAuth
+            - name: Logging
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                key-resolver: "#{@apiKeyResolver}"
+
+        - id: subscriptions
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/subscriptions/**
+          filters:
+            - name: ApiKeyAuth
+            - name: Logging
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                key-resolver: "#{@apiKeyResolver}"
+
+        - id: messages
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/messages/**
+          filters:
+            - name: ApiKeyAuth
+            - name: Logging
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                key-resolver: "#{@apiKeyResolver}"
+
+        - id: stripe-webhook
+          uri: http://localhost:8082
+          predicates:
+            - Path=/webhooks/stripe
+          filters:
+            - name: Logging
+
+        - id: twilio-webhook
+          uri: http://localhost:8083
+          predicates:
+            - Path=/webhooks/twilio/**
+          filters:
+            - name: Logging
+
+        - id: health-checks
+          uri: http://localhost:8081
+          predicates:
+            - Path=/actuator/health
+          filters:
+            - name: Logging
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ""
+
+# Local API keys (for testing only - DO NOT use in production)
+api:
+  keys: local-dev-key-12345,test-key-67890
+
+# Backend URLs (local)
+backend:
+  registration:
+    url: http://localhost:8081
+  subscriptions:
+    url: http://localhost:8082
+  messages:
+    url: http://localhost:8083
+
+# CORS (allow all for local dev)
+cors:
+  allowed-origins: http://localhost:3000,http://localhost:8000,http://127.0.0.1:8000,http://localhost:5500
+
+# Logging (more verbose for debugging)
+logging:
+  level:
+    com.wis.apigateway: DEBUG
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.web: DEBUG

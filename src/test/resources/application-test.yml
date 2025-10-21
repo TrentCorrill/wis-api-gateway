@@ -1,0 +1,53 @@
+# Test profile configuration
+# Used for unit and integration tests
+
+server:
+  port: 0  # Random port for tests
+
+spring:
+  application:
+    name: wis-api-gateway-test
+
+  # Use minimal gateway configuration for tests
+  cloud:
+    gateway:
+      # Disable route discovery from application.yml to avoid conflicts
+      enabled: true
+      routes: []  # No routes needed for unit tests
+
+  # Disable Redis for tests (use embedded Redis or mock)
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ""
+
+  # Disable auto-configuration that requires external services
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration
+
+# Test API keys
+api:
+  keys: test-key-12345,another-test-key
+
+# Test backend URLs
+backend:
+  registration:
+    url: http://localhost:8081
+  subscriptions:
+    url: http://localhost:8082
+  messages:
+    url: http://localhost:8083
+
+# CORS (permissive for tests)
+cors:
+  allowed-origins: http://localhost:3000,http://localhost:8000
+
+# Logging (minimal for tests)
+logging:
+  level:
+    root: WARN
+    com.wis.apigateway: INFO
+    org.springframework: WARN

@@ -1,0 +1,40 @@
+# Production environment configuration
+
+# Backend service URLs (production)
+backend:
+  registration:
+    url: https://wis-registration.azurewebsites.net
+  subscriptions:
+    url: https://wis-subscriptions.azurewebsites.net
+  messages:
+    url: https://wis-message-handler.azurewebsites.net
+
+# API keys from Azure Key Vault
+api:
+  keys: ${API_KEYS}
+
+# Redis from Azure Cache for Redis
+spring:
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: 6380
+      password: ${REDIS_PASSWORD}
+      ssl:
+        enabled: true
+
+# CORS (production domains only - strict)
+cors:
+  allowed-origins: https://wordsinseason.com,https://www.wordsinseason.com
+
+# Application Insights
+azure:
+  application-insights:
+    instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY}
+
+# Logging (minimal in production for performance)
+logging:
+  level:
+    com.wis.apigateway: INFO
+    org.springframework.cloud.gateway: WARN
+    org.springframework.web: WARN

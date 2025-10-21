@@ -1,0 +1,137 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: wis-api-gateway
+
+  cloud:
+    gateway:
+      # Global CORS handled by CorsConfig.java
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+
+      # Route configurations
+      routes:
+        # Registration Service Routes
+        - id: registration
+          uri: ${backend.registration.url}
+          predicates:
+            - Path=/api/register/**
+          filters:
+            - name: ApiKeyAuth
+            - name: Logging
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                key-resolver: "#{@apiKeyResolver}"
+
+        # Subscriptions Service Routes
+        - id: subscriptions
+          uri: ${backend.subscriptions.url}
+          predicates:
+            - Path=/api/subscriptions/**
+          filters:
+            - name: ApiKeyAuth
+            - name: Logging
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                key-resolver: "#{@apiKeyResolver}"
+
+        # Messages Service Routes
+        - id: messages
+          uri: ${backend.messages.url}
+          predicates:
+            - Path=/api/messages/**
+          filters:
+            - name: ApiKeyAuth
+            - name: Logging
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                key-resolver: "#{@apiKeyResolver}"
+
+        # Stripe Webhook (NO AUTH - signature validated by service)
+        - id: stripe-webhook
+          uri: ${backend.subscriptions.url}
+          predicates:
+            - Path=/webhooks/stripe
+          filters:
+            - name: Logging
+
+        # Twilio Webhook (NO AUTH - signature validated by service)
+        - id: twilio-webhook
+          uri: ${backend.messages.url}
+          predicates:
+            - Path=/webhooks/twilio/**
+          filters:
+            - name: Logging
+
+        # Health Checks (NO AUTH)
+        - id: health-checks
+          uri: ${backend.registration.url}
+          predicates:
+            - Path=/actuator/health
+          filters:
+            - name: Logging
+
+  # Redis configuration
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
+
+# API Configuration
+api:
+  keys: ${API_KEYS:}
+
+# Backend service URLs
+backend:
+  registration:
+    url: ${WIS_REGISTRATION_URL:http://localhost:8081}
+  subscriptions:
+    url: ${WIS_SUBSCRIPTIONS_URL:http://localhost:8082}
+  messages:
+    url: ${WIS_MESSAGES_URL:http://localhost:8083}
+
+# CORS Configuration
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:https://*.azurestaticapps.net,https://wordsinseason.com}
+
+# Azure Application Insights (optional, for production)
+azure:
+  application-insights:
+    instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY:}
+
+# Actuator configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# Logging
+logging:
+  level:
+    root: INFO
+    com.wis.apigateway: DEBUG
+    org.springframework.cloud.gateway: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# Application metadata
+application:
+  version: 1.0.0
