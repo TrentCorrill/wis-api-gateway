@@ -19,7 +19,7 @@ import java.util.List;
  * <p>Configuration:
  * <pre>
  * cors:
- *   allowed-origins: https://wordsinseason.com,https://app.wordsinseason.com
+ *   allowed-origins: https://wordsinseasonapp.com,https://www.wordsinseasonapp.com
  * </pre>
  *
  * <p>Features:
@@ -37,7 +37,7 @@ import java.util.List;
 @Configuration
 public class CorsConfig {
 
-    @Value("${cors.allowed-origins:https://*.azurestaticapps.net,https://wordsinseason.com}")
+    @Value("${cors.allowed-origins:https://*.azurestaticapps.net,https://wordsinseasonapp.com}")
     private String allowedOrigins;
 
     /**

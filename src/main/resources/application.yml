@@ -101,7 +101,7 @@ backend:
 
 # CORS Configuration
 cors:
-  allowed-origins: ${CORS_ALLOWED_ORIGINS:https://*.azurestaticapps.net,https://wordsinseason.com}
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:https://*.azurestaticapps.net,https://wordsinseasonapp.com}
 
 # Azure Application Insights (optional, for production)
 azure:

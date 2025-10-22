@@ -22,7 +22,7 @@ spring:
 
 # CORS (production domains only - strict)
 cors:
-  allowed-origins: https://wordsinseason.com,https://www.wordsinseason.com
+  allowed-origins: https://wordsinseasonapp.com,https://www.wordsinseasonapp.com
 
 # Application Insights
 azure:
