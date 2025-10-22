@@ -3,11 +3,11 @@
 # Backend service URLs (production)
 backend:
   registration:
-    url: https://wis-registration.azurewebsites.net
+    url: ${BACKEND_REGISTRATION_URL:https://wis-registration-prod.azurewebsites.net}
   subscriptions:
-    url: https://wis-subscriptions.azurewebsites.net
+    url: ${BACKEND_SUBSCRIPTIONS_URL:https://wis-subscriptions-prod.azurewebsites.net}
   messages:
-    url: https://wis-message-handler.azurewebsites.net
+    url: ${BACKEND_MESSAGES_URL:https://wis-message-handler-prod.azurewebsites.net}
 
 # API keys from Azure Key Vault
 api:
