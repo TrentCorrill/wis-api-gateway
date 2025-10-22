@@ -11,7 +11,7 @@ This setup gives you enterprise-grade security WITHOUT the cost of Azure VNet:
 ```
 Internet
    ↓
-Cloudflare (api.wordsinseason.com)
+Cloudflare (api.wordsinseasonapp.com)
    ↓ [Only Cloudflare IPs allowed]
 API Gateway (wis-api-gateway.azurewebsites.net)
    ↓ [Only API Gateway IPs allowed]
@@ -38,7 +38,7 @@ Backend Services (registration, subscriptions, messages)
 
 **In Cloudflare Dashboard:**
 
-1. Go to your domain: `wordsinseason.com`
+1. Go to your domain: `wordsinseasonapp.com`
 2. Navigate to **DNS** → **Records**
 3. Click **Add Record**
 
@@ -51,7 +51,7 @@ Proxy:   ON (orange cloud ☁️) ← IMPORTANT!
 TTL:     Auto
 ```
 
-**Result:** `api.wordsinseason.com` → API Gateway
+**Result:** `api.wordsinseasonapp.com` → API Gateway
 
 ### 1.2 Verify Proxy is Enabled
 
@@ -274,7 +274,7 @@ const API_BASE_URL = 'https://wis-api-gateway-stage.azurewebsites.net';
 
 ### After:
 ```javascript
-const API_BASE_URL = 'https://api.wordsinseason.com';
+const API_BASE_URL = 'https://api.wordsinseasonapp.com';
 ```
 
 ### Environment Variables
@@ -286,14 +286,14 @@ const API_BASE_URL = 'https://api.wordsinseason.com';
 az staticwebapp appsettings set \
   --name HomePage-Stage \
   --setting-names \
-    API_BASE_URL="https://api.wordsinseason.com" \
+    API_BASE_URL="https://api.wordsinseasonapp.com" \
     API_KEY="6b4d1a9f55d0ca0d24e5598c7dc05ac87bdede4b6b3610665d42a407df6487c3"
 
 # Production
 az staticwebapp appsettings set \
   --name HomePage \
   --setting-names \
-    API_BASE_URL="https://api.wordsinseason.com" \
+    API_BASE_URL="https://api.wordsinseasonapp.com" \
     API_KEY="d8c88a1a8361d1f71b7338f06bfc1f7bba9249f8c66fec6cd708cf20b19efc3a"
 ```
 
@@ -336,7 +336,7 @@ Blocks bad bots automatically.
 
 ```bash
 # Should work (through Cloudflare)
-curl https://api.wordsinseason.com/actuator/health
+curl https://api.wordsinseasonapp.com/actuator/health
 
 # Should work (direct Azure URL still accessible until Step 7)
 curl https://wis-api-gateway.azurewebsites.net/actuator/health
@@ -351,7 +351,7 @@ After adding Cloudflare IP restrictions:
 curl https://wis-api-gateway.azurewebsites.net/actuator/health
 
 # Should WORK (through Cloudflare proxy)
-curl https://api.wordsinseason.com/actuator/health
+curl https://api.wordsinseasonapp.com/actuator/health
 ```
 
 ### Test 3: Verify Backend Service Restrictions
@@ -361,7 +361,7 @@ curl https://api.wordsinseason.com/actuator/health
 curl https://wis-registration-stage.azurewebsites.net/actuator/health
 
 # Should WORK (through API Gateway)
-curl -H "X-API-Key: YOUR_KEY" https://api.wordsinseason.com/api/register/test
+curl -H "X-API-Key: YOUR_KEY" https://api.wordsinseasonapp.com/api/register/test
 ```
 
 ---
@@ -370,7 +370,7 @@ curl -H "X-API-Key: YOUR_KEY" https://api.wordsinseason.com/api/register/test
 
 ### 7.1 Custom Domain in Azure
 
-Add `api.wordsinseason.com` as a custom domain in Azure App Service:
+Add `api.wordsinseasonapp.com` as a custom domain in Azure App Service:
 - Better logging
 - Potential performance improvement
 - Cleaner URLs in Azure logs
@@ -466,7 +466,7 @@ This blocks public access to deployment endpoints.
 
 **Test DNS:**
 ```bash
-nslookup api.wordsinseason.com
+nslookup api.wordsinseasonapp.com
 # Should return Cloudflare IPs (104.x.x.x or 172.x.x.x)
 ```
 
@@ -508,7 +508,7 @@ az webapp config access-restriction add \
 2. ✅ Enable Cloudflare proxy (orange cloud)
 3. ✅ Lock API Gateway to Cloudflare IPs
 4. ✅ Lock backend services to API Gateway IPs
-5. ✅ Update frontend to use `api.wordsinseason.com`
+5. ✅ Update frontend to use `api.wordsinseasonapp.com`
 6. ✅ Enable Cloudflare WAF and Bot Fight Mode
 7. ✅ Test everything thoroughly
 8. ✅ Monitor Cloudflare analytics

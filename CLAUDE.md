@@ -177,7 +177,7 @@ spring.cloud.gateway.routes:
 - Backend services: Azure production URLs
 - Redis: Azure Cache for Redis (SSL enabled)
 - API keys: From Azure Key Vault
-- CORS: `wordsinseason.com` only
+- CORS: `wordsinseasonapp.com` only
 - Logging: WARN level (less verbose)
 
 ## Common Tasks
@@ -229,7 +229,7 @@ filters:
 Update `CorsConfig.java` or `cors.allowed-origins` property:
 ```yaml
 cors:
-  allowed-origins: https://wordsinseason.com,https://app.wordsinseason.com
+  allowed-origins: https://wordsinseasonapp.com,https://app.wordsinseasonapp.com
 ```
 
 ### Rotating API Keys

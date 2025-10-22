@@ -77,7 +77,7 @@ WIS_SUBSCRIPTIONS_URL=http://localhost:8082
 WIS_MESSAGES_URL=http://localhost:8083
 
 # CORS
-CORS_ALLOWED_ORIGINS=http://localhost:3000,https://wordsinseason.com
+CORS_ALLOWED_ORIGINS=http://localhost:3000,https://wordsinseasonapp.com
 
 # Application Insights (Azure)
 APPINSIGHTS_INSTRUMENTATIONKEY=your-key
@@ -333,4 +333,4 @@ Proprietary - Words In Season LLC
 
 For issues or questions:
 - Create an issue in this repository
-- Contact: dev@wordsinseason.com
+- Contact: dev@wordsinseasonapp.com

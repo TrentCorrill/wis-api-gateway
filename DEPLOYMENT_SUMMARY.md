@@ -137,7 +137,7 @@ API_KEYS=@Microsoft.KeyVault(...)
 WIS_REGISTRATION_URL=https://wis-registration-stage.azurewebsites.net
 WIS_SUBSCRIPTIONS_URL=https://wis-subscriptions-stage.azurewebsites.net
 WIS_MESSAGES_URL=https://wis-message-handler-stage.azurewebsites.net
-CORS_ALLOWED_ORIGINS=https://*.azurestaticapps.net,https://stage.wordsinseason.com
+CORS_ALLOWED_ORIGINS=https://*.azurestaticapps.net,https://stage.wordsinseasonapp.com
 ```
 
 ### Environment Variables (Production)
@@ -147,7 +147,7 @@ API_KEYS=@Microsoft.KeyVault(...)
 WIS_REGISTRATION_URL=https://wis-registration-prod.azurewebsites.net
 WIS_SUBSCRIPTIONS_URL=https://wis-subscriptions-prod.azurewebsites.net
 WIS_MESSAGES_URL=https://wis-message-handler-prod.azurewebsites.net
-CORS_ALLOWED_ORIGINS=https://wordsinseason.com,https://www.wordsinseason.com
+CORS_ALLOWED_ORIGINS=https://wordsinseasonapp.com,https://www.wordsinseasonapp.com
 ```
 
 ---

@@ -10,7 +10,7 @@
 ```
 Internet
    ↓
-Cloudflare Proxy (api.wordsinseason.com)
+Cloudflare Proxy (api.wordsinseasonapp.com)
    ↓ [Only Cloudflare IPs allowed - 15 IP ranges]
 API Gateway (*.azurewebsites.net)
    ↓ [Only API Gateway IPs allowed - 22 IPs per environment]
@@ -26,12 +26,12 @@ Backend Services (registration, subscriptions, messages)
 **Staging API Gateway:** `wis-api-gateway-stage`
 - ✅ 16 IP restriction rules (15 Cloudflare ranges + 1 Deny All)
 - ✅ Direct access blocked (returns 403 Forbidden)
-- ⏳ Cloudflare access: DNS propagating (api.wordsinseason.com)
+- ⏳ Cloudflare access: DNS propagating (api.wordsinseasonapp.com)
 
 **Production API Gateway:** `wis-api-gateway`
 - ✅ 16 IP restriction rules (15 Cloudflare ranges + 1 Deny All)
 - ✅ Direct access blocked (returns 403 Forbidden)
-- ⏳ Cloudflare access: DNS propagating (api.wordsinseason.com)
+- ⏳ Cloudflare access: DNS propagating (api.wordsinseasonapp.com)
 
 ### Backend Services Lockdown (API Gateway-Only Access)
 
@@ -70,7 +70,7 @@ wis-api-gateway:               403 Forbidden ✅
 - ✅ Backend services ONLY accessible via API Gateway
 - ✅ API Gateway ONLY accessible via Cloudflare
 - ✅ Direct *.azurewebsites.net access completely blocked
-- ✅ All traffic must flow through api.wordsinseason.com
+- ✅ All traffic must flow through api.wordsinseasonapp.com
 
 ### Web Application Firewall (WAF)
 - ✅ Cloudflare Managed Rules available (free)
@@ -78,7 +78,7 @@ wis-api-gateway:               403 Forbidden ✅
 - ✅ SQL injection, XSS, and other attack prevention
 
 ### Professional Domain
-- ✅ Custom domain: api.wordsinseason.com
+- ✅ Custom domain: api.wordsinseasonapp.com
 - ✅ Free SSL certificate (auto-renewed)
 - ✅ No more exposing Azure URLs to clients
 
@@ -186,7 +186,7 @@ curl https://wis-subscriptions-prod.azurewebsites.net/actuator/health
 **✅ Cloudflare Proxy Access (ALLOWED):**
 ```bash
 # Once DNS propagates, this should work
-curl https://api.wordsinseason.com/actuator/health
+curl https://api.wordsinseasonapp.com/actuator/health
 
 # Should return:
 # {"status":"UP",...}
@@ -196,12 +196,12 @@ curl https://api.wordsinseason.com/actuator/health
 ```bash
 # Frontend can make authenticated requests
 curl -H "X-API-Key: d8c88a1a8361d1f71b7338f06bfc1f7bba9249f8c66fec6cd708cf20b19efc3a" \
-  https://api.wordsinseason.com/api/subscriptions/test
+  https://api.wordsinseasonapp.com/api/subscriptions/test
 ```
 
 ### DNS Propagation Status
 
-**Domain:** api.wordsinseason.com
+**Domain:** api.wordsinseasonapp.com
 **Target:** wis-api-gateway.azurewebsites.net
 **Proxy:** ☁️ ON (Cloudflare)
 **Status:** ⏳ Propagating (NXDOMAIN as of verification)
@@ -210,7 +210,7 @@ curl -H "X-API-Key: d8c88a1a8361d1f71b7338f06bfc1f7bba9249f8c66fec6cd708cf20b19e
 
 **Check DNS propagation:**
 ```bash
-nslookup api.wordsinseason.com
+nslookup api.wordsinseasonapp.com
 # Should resolve to Cloudflare IPs (104.x.x.x or 172.x.x.x)
 ```
 
@@ -222,12 +222,12 @@ nslookup api.wordsinseason.com
 
 1. **Test Cloudflare Access**
    ```bash
-   curl https://api.wordsinseason.com/actuator/health
+   curl https://api.wordsinseasonapp.com/actuator/health
    ```
    Expected: `{"status":"UP"}`
 
 2. **Update Frontend Configuration**
-   - Change API base URL to: `https://api.wordsinseason.com`
+   - Change API base URL to: `https://api.wordsinseasonapp.com`
    - Keep existing API keys (no change needed)
    - See: `Documentation/FRONTEND_INTEGRATION.md`
 
@@ -249,7 +249,7 @@ nslookup api.wordsinseason.com
    - Monitor DDoS and WAF events
 
 6. **Add Custom Domain to Azure**
-   - Add `api.wordsinseason.com` as custom domain in App Service
+   - Add `api.wordsinseasonapp.com` as custom domain in App Service
    - Benefits: Better logs, cleaner URLs in Azure Portal
 
 ---
@@ -262,7 +262,7 @@ nslookup api.wordsinseason.com
 | Direct gateway access | ✅ Anyone | ❌ Cloudflare only |
 | DDoS protection | ❌ None | ✅ Cloudflare |
 | Web Application Firewall | ❌ None | ✅ Cloudflare |
-| Custom domain | ❌ Azure URLs | ✅ api.wordsinseason.com |
+| Custom domain | ❌ Azure URLs | ✅ api.wordsinseasonapp.com |
 | SSL certificate | ✅ Azure | ✅ Cloudflare (auto-renew) |
 | Rate limiting | ❌ None | 🔜 Cloudflare/Redis |
 | Network isolation | ❌ Public | ✅ IP-restricted |
@@ -314,13 +314,13 @@ All security configuration documented in:
 
 ### DNS Not Resolving
 
-**Problem:** `nslookup api.wordsinseason.com` returns NXDOMAIN
+**Problem:** `nslookup api.wordsinseasonapp.com` returns NXDOMAIN
 
 **Solution:** Wait for DNS propagation (5-10 minutes typical, up to 48 hours)
 
 **Check:** Verify Cloudflare DNS record exists and proxy is ON (orange cloud ☁️)
 
-### 403 Forbidden from api.wordsinseason.com
+### 403 Forbidden from api.wordsinseasonapp.com
 
 **Problem:** Cloudflare access returns 403
 
@@ -385,7 +385,7 @@ az webapp config access-restriction show \
 
 **Key Achievements:**
 - 🔒 Enterprise-grade security at $0 additional cost
-- 🚀 Professional custom domain (api.wordsinseason.com)
+- 🚀 Professional custom domain (api.wordsinseasonapp.com)
 - 🛡️ DDoS protection and WAF (Cloudflare)
 - 🔐 Complete network isolation via IP restrictions
 - ✅ All 8 services properly locked down
@@ -394,7 +394,7 @@ az webapp config access-restriction show \
 
 **Once DNS propagates, update your frontend to use:**
 ```javascript
-const API_BASE_URL = 'https://api.wordsinseason.com';
+const API_BASE_URL = 'https://api.wordsinseasonapp.com';
 const API_KEY = 'd8c88a1a8361d1f71b7338f06bfc1f7bba9249f8c66fec6cd708cf20b19efc3a'; // Production
 ```
 

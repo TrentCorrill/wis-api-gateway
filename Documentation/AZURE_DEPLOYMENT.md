@@ -247,7 +247,7 @@ az webapp config appsettings set \
     WIS_REGISTRATION_URL="https://wis-registration-stage.azurewebsites.net" \
     WIS_SUBSCRIPTIONS_URL="https://wis-subscriptions-stage.azurewebsites.net" \
     WIS_MESSAGES_URL="https://wis-message-handler-stage.azurewebsites.net" \
-    CORS_ALLOWED_ORIGINS="https://*.azurestaticapps.net,https://stage.wordsinseason.com" \
+    CORS_ALLOWED_ORIGINS="https://*.azurestaticapps.net,https://stage.wordsinseasonapp.com" \
     APPINSIGHTS_INSTRUMENTATIONKEY="@Microsoft.KeyVault(SecretUri=https://${KEY_VAULT_NAME}.vault.azure.net/secrets/APPINSIGHTS-INSTRUMENTATIONKEY/)"
 ```
 
@@ -264,7 +264,7 @@ az webapp config appsettings set \
     WIS_REGISTRATION_URL="https://wis-registration.azurewebsites.net" \
     WIS_SUBSCRIPTIONS_URL="https://wis-subscriptions.azurewebsites.net" \
     WIS_MESSAGES_URL="https://wis-message-handler.azurewebsites.net" \
-    CORS_ALLOWED_ORIGINS="https://wordsinseason.com,https://www.wordsinseason.com" \
+    CORS_ALLOWED_ORIGINS="https://wordsinseasonapp.com,https://www.wordsinseasonapp.com" \
     APPINSIGHTS_INSTRUMENTATIONKEY="@Microsoft.KeyVault(SecretUri=https://${KEY_VAULT_NAME}.vault.azure.net/secrets/APPINSIGHTS-INSTRUMENTATIONKEY/)"
 ```
 
@@ -332,7 +332,7 @@ curl https://${APP_NAME_PROD}.azurewebsites.net/
 az webapp config hostname add \
   --resource-group $RESOURCE_GROUP \
   --webapp-name $APP_NAME_PROD \
-  --hostname api.wordsinseason.com
+  --hostname api.wordsinseasonapp.com
 
 # Enable HTTPS
 az webapp config ssl bind \

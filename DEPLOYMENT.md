@@ -174,7 +174,7 @@ az webapp restart --resource-group wis-resources --name wis-api-gateway
 az webapp config appsettings set \
   --resource-group wis-resources \
   --name wis-api-gateway \
-  --settings CORS_ALLOWED_ORIGINS="https://wordsinseason.com,https://www.wordsinseason.com"
+  --settings CORS_ALLOWED_ORIGINS="https://wordsinseasonapp.com,https://www.wordsinseasonapp.com"
 ```
 
 ### Scale App Service
@@ -309,7 +309,7 @@ After deploying the API Gateway:
 2. **Update backend services** to accept API key authentication
 3. **Update webhooks** (Stripe, Twilio) to use gateway URL
 4. **Configure monitoring alerts** in Application Insights
-5. **Set up custom domain** (api.wordsinseason.com)
+5. **Set up custom domain** (api.wordsinseasonapp.com)
 
 ## Support
 
