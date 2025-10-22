@@ -3,19 +3,25 @@ name: Build and Deploy API Gateway
 on:
   push:
     branches:
-      - main          # Production deployment
-      - develop       # Staging deployment
+      - main
+      - develop
   pull_request:
     branches:
       - main
       - develop
+  workflow_dispatch:
 
 env:
   JAVA_VERSION: '17'
-  GRADLE_VERSION: '8.5'
+  ACR_REGISTRY: 'wordsinseason-d7hkgeb9dwhscggb.azurecr.io'
+  IMAGE_NAME: 'wis-api-gateway'
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
 
 jobs:
-  # Build and test job (runs on all branches)
   build-and-test:
     name: Build and Test
     runs-on: ubuntu-latest
@@ -47,14 +53,41 @@ jobs:
           name: test-results
           path: build/reports/tests/test/
 
-      - name: Upload JAR artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: api-gateway-jar
-          path: build/libs/*.jar
-          retention-days: 7
+      - name: Set up Docker Buildx
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+        uses: docker/setup-buildx-action@v3
 
-  # Deploy to staging (on push to develop)
+      - name: Login to Azure Container Registry
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+        uses: azure/docker-login@v2
+        with:
+          login-server: ${{ env.ACR_REGISTRY }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Extract metadata for Docker
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
+
+      - name: Build and push Docker image
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
+
   deploy-staging:
     name: Deploy to Staging
     needs: build-and-test
@@ -65,41 +98,50 @@ jobs:
       url: https://wis-api-gateway-stage.azurewebsites.net
 
     steps:
-      - name: Download JAR artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: api-gateway-jar
-
-      - name: Azure Login
-        uses: azure/login@v1
+      - name: Login to Azure
+        uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy to Azure Web App (Staging)
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: wis-api-gateway-stage
-          package: 'wis-api-gateway-*.jar'
+      - name: Update Web App to pull latest Docker image
+        run: |
+          echo "Triggering webapp to pull image: ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:develop"
+          az webapp config container set \
+            --name wis-api-gateway-stage \
+            --resource-group Staging \
+            --container-image-name ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:develop
 
-      - name: Wait for deployment to complete
-        run: sleep 30
+          echo "Restarting webapp..."
+          az webapp restart \
+            --name wis-api-gateway-stage \
+            --resource-group Staging
+
+          echo "Waiting for startup..."
+          sleep 40
 
       - name: Health check (Staging)
         run: |
-          response=$(curl -s -o /dev/null -w "%{http_code}" https://wis-api-gateway-stage.azurewebsites.net/actuator/health)
-          if [ $response -ne 200 ]; then
-            echo "Health check failed with status: $response"
-            exit 1
-          fi
-          echo "Health check passed!"
+          max_attempts=10
+          attempt=0
 
-      - name: Notify deployment success
-        if: success()
-        run: |
-          echo "✅ Successfully deployed to staging"
-          echo "URL: https://wis-api-gateway-stage.azurewebsites.net"
+          while [ $attempt -lt $max_attempts ]; do
+            if curl -f -s --max-time 10 https://wis-api-gateway-stage.azurewebsites.net/actuator/health > /dev/null 2>&1; then
+              echo "✅ Staging is healthy!"
+              exit 0
+            fi
 
-  # Deploy to production (on push to main)
+            attempt=$((attempt + 1))
+            echo "Attempt $attempt/$max_attempts failed, waiting 15s..."
+            sleep 15
+          done
+
+          echo "❌ Health check failed after $max_attempts attempts"
+          exit 1
+
+      - name: Azure logout
+        if: always()
+        run: az logout
+
   deploy-production:
     name: Deploy to Production
     needs: build-and-test
@@ -107,44 +149,56 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: production
-      url: https://wis-api-gateway.azurewebsites.net
+      url: https://api.wordsinseasonapp.com
 
     steps:
-      - name: Download JAR artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: api-gateway-jar
-
-      - name: Azure Login
-        uses: azure/login@v1
+      - name: Login to Azure
+        uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy to Azure Web App (Production)
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: wis-api-gateway
-          package: 'wis-api-gateway-*.jar'
+      - name: Update Web App to pull latest Docker image
+        run: |
+          echo "Triggering webapp to pull image: ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+          az webapp config container set \
+            --name wis-api-gateway \
+            --resource-group Production \
+            --container-image-name ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
-      - name: Wait for deployment to complete
-        run: sleep 30
+          echo "Restarting webapp..."
+          az webapp restart \
+            --name wis-api-gateway \
+            --resource-group Production
+
+          echo "Waiting for startup..."
+          sleep 40
 
       - name: Health check (Production)
         run: |
-          response=$(curl -s -o /dev/null -w "%{http_code}" https://wis-api-gateway.azurewebsites.net/actuator/health)
-          if [ $response -ne 200 ]; then
-            echo "Health check failed with status: $response"
-            exit 1
-          fi
-          echo "Health check passed!"
+          max_attempts=10
+          attempt=0
+
+          while [ $attempt -lt $max_attempts ]; do
+            if curl -f -s --max-time 10 https://api.wordsinseasonapp.com/actuator/health > /dev/null 2>&1; then
+              echo "✅ Production is healthy!"
+              exit 0
+            fi
+
+            attempt=$((attempt + 1))
+            echo "Attempt $attempt/$max_attempts failed, waiting 15s..."
+            sleep 15
+          done
+
+          echo "❌ Health check failed after $max_attempts attempts"
+          exit 1
 
       - name: Smoke tests (Production)
         run: |
           # Test home endpoint
-          curl -f https://wis-api-gateway.azurewebsites.net/ || exit 1
+          curl -f https://api.wordsinseasonapp.com/ || exit 1
 
           # Test that protected endpoints require auth
-          status=$(curl -s -o /dev/null -w "%{http_code}" https://wis-api-gateway.azurewebsites.net/api/subscriptions/test)
+          status=$(curl -s -o /dev/null -w "%{http_code}" https://api.wordsinseasonapp.com/api/subscriptions/test)
           if [ $status -ne 401 ]; then
             echo "Authentication check failed - expected 401, got $status"
             exit 1
@@ -156,4 +210,8 @@ jobs:
         if: success()
         run: |
           echo "✅ Successfully deployed to production"
-          echo "URL: https://wis-api-gateway.azurewebsites.net"
+          echo "URL: https://api.wordsinseasonapp.com"
+
+      - name: Azure logout
+        if: always()
+        run: az logout

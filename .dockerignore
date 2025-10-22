@@ -1,50 +1,50 @@
-# Git files
+# Git
 .git
 .gitignore
 .gitattributes
 
-# Documentation
-README.md
-TODO.md
-CLAUDE.md
-Documentation/
-
-# Build artifacts
+# Build output
 build/
-target/
 .gradle/
-*.jar
-*.war
+out/
+target/
 
-# IDE files
+# IDE
 .idea/
 .vscode/
 *.iml
-*.ipr
 *.iws
-.project
-.classpath
+*.ipr
 .settings/
+.classpath
+.project
+
+# Documentation
+*.md
+docs/
+Documentation/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Local environment
+.env
+.env.local
+
+# Logs
+*.log
 
 # OS files
 .DS_Store
 Thumbs.db
 
-# Test files
-src/test/
-
-# Logs
-*.log
-logs/
-
-# Environment files
-.env
-.env.local
-.env.*.local
+# Test coverage
+.coverage
+htmlcov/
 
 # Temporary files
 *.tmp
-*.temp
+*.bak
 *.swp
-*.swo
 *~
