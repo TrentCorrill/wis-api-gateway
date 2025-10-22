@@ -21,6 +21,7 @@ spring:
           filters:
             - name: ApiKeyAuth
             - name: Logging
+            - AddRequestHeader=X-Service-Key, ${SERVICE_TO_SERVICE_KEY:}
             # Rate limiting temporarily disabled (requires Redis)
             # - name: RequestRateLimiter
             #   args:
@@ -36,6 +37,7 @@ spring:
           filters:
             - name: ApiKeyAuth
             - name: Logging
+            - AddRequestHeader=X-Service-Key, ${SERVICE_TO_SERVICE_KEY:}
             # Rate limiting temporarily disabled (requires Redis)
 
         # Messages Service Routes
@@ -46,6 +48,7 @@ spring:
           filters:
             - name: ApiKeyAuth
             - name: Logging
+            - AddRequestHeader=X-Service-Key, ${SERVICE_TO_SERVICE_KEY:}
             # Rate limiting temporarily disabled (requires Redis)
 
         # Stripe Webhook (NO AUTH - signature validated by service)
@@ -55,6 +58,7 @@ spring:
             - Path=/webhooks/stripe
           filters:
             - name: Logging
+            - AddRequestHeader=X-Service-Key, ${SERVICE_TO_SERVICE_KEY:}
 
         # Twilio Webhook (NO AUTH - signature validated by service)
         - id: twilio-webhook
@@ -63,6 +67,7 @@ spring:
             - Path=/webhooks/twilio/**
           filters:
             - name: Logging
+            - AddRequestHeader=X-Service-Key, ${SERVICE_TO_SERVICE_KEY:}
 
         # Health Checks (NO AUTH)
         - id: health-checks
@@ -71,6 +76,7 @@ spring:
             - Path=/actuator/health
           filters:
             - name: Logging
+            - AddRequestHeader=X-Service-Key, ${SERVICE_TO_SERVICE_KEY:}
 
   # Redis configuration
   data:
