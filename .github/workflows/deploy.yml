@@ -70,11 +70,15 @@ jobs:
         with:
           name: api-gateway-jar
 
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Deploy to Azure Web App (Staging)
         uses: azure/webapps-deploy@v3
         with:
           app-name: wis-api-gateway-stage
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_STAGE }}
           package: '*.jar'
 
       - name: Wait for deployment to complete
@@ -111,11 +115,15 @@ jobs:
         with:
           name: api-gateway-jar
 
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Deploy to Azure Web App (Production)
         uses: azure/webapps-deploy@v3
         with:
           app-name: wis-api-gateway
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_PROD }}
           package: '*.jar'
 
       - name: Wait for deployment to complete
