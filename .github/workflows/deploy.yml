@@ -79,7 +79,7 @@ jobs:
         uses: azure/webapps-deploy@v3
         with:
           app-name: wis-api-gateway-stage
-          package: '*.jar'
+          package: 'wis-api-gateway-*.jar'
 
       - name: Wait for deployment to complete
         run: sleep 30
@@ -124,7 +124,7 @@ jobs:
         uses: azure/webapps-deploy@v3
         with:
           app-name: wis-api-gateway
-          package: '*.jar'
+          package: 'wis-api-gateway-*.jar'
 
       - name: Wait for deployment to complete
         run: sleep 30
